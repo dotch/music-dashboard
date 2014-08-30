@@ -12,94 +12,130 @@
         <link rel="stylesheet" href="styles/main.css">
 
     </head>
-    <body>
+    <body data-spy="scroll" data-target="#navbar">
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <div id="loader">Crunching the numbers. Please wait...</div>
         <div class="container hidden" id="container">
+          <div class="row">
+            <div class="col-md-9">
 
-          <h1 class="page-header">Music Survey Real Time Results</h1>
+              <h1 class="page-header">Music Survey Real Time Results</h1>
 
-          <h2>Descriptives</h2>
+              <h2 id="participants">Participants</h2>
+              <h3 id="participants-count">Count</h3>
+              <table class="table table-bordered" id="participants-count-table">
+                <tr>
+                  <th>Group</th>
+                  <th>Count</th>
+                  <th>Share</th>
+                </tr>
+              </table>
+              <h3 id="participants-demographics">Demographics</h3>
+              <table class="table table-bordered" id="participants-demographics-table">
+                <tr>
+                  <th colspan="2">Group</th>
+                  <th colspan="2">Gender</th>
+                  <th colspan="2">Age</th>
+                </tr>
+              </table>
 
-          <h3>Count</h3>
-          <table class="table table-bordered" id="count">
-            <tr>
-              <th>Group</th>
-              <th>Count</th>
-            </tr>
-          </table>
+              <h2 id="general-behavior">General Behavior</h2>
+              <h3 id="general-behavior-time">Time</h3>
+              <table class="table table-bordered" id="general-behavior-time-table">
+                <tr>
+                  <th>Group</th>
+                  <th colspan="3">Music Time (minutes)</th>
+                  <th colspan="3">Total Time (minutes)</th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>min</th>
+                  <th>max</th>
+                  <th>md</th>
+                  <th>min</th>
+                  <th>max</th>
+                  <th>md</th>
+                </tr>
+              </table>
+              <h3 id="general-behavior-play-count">Play Count</h3>
+              <table class="table table-bordered" id="general-behavior-play-count-table">
+                <tr>
+                  <th>Group</th>
+                  <th colspan="3">Rating Tracks</th>
+                  <th colspan="3">Selection Tracks</th>
+                  <th colspan="3">Recommendation Tracks</th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>min</th>
+                  <th>max</th>
+                  <th>md</th>
+                  <th>min</th>
+                  <th>max</th>
+                  <th>md</th>
+                  <th>min</th>
+                  <th>max</th>
+                  <th>md</th>
+                </tr>
+              </table>
 
-          <h3>Demographics</h3>
-          <table class="table table-bordered" id="demographics">
-            <tr>
-              <th>Group</th>
-              <th>Gender</th>
-              <th>Age</th>
-              <th>Count</th>
-            </tr>
-          </table>
+              <h2 id="ratings">Ratings</h2>
+              <h3 id="ratings-average">Average Ratings</h3>
+              <table class="table table-bordered" id="ratings-average-table">
+                <tr>
+                  <th>Song</th>
+                  <th>Rating (MD)</th>
+                  <th>StdDev</th>
+                </tr>
+              </table>
 
-          <h2>General Behavior</h2>
-          <h3>Time</h3>
-          <table class="table table-bordered" id="time">
-            <tr>
-              <th>Group</th>
-              <th colspan="3">Music Time (minutes)</th>
-              <th colspan="3">Total Time (minutes)</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th>min</th>
-              <th>max</th>
-              <th>md</th>
-              <th>min</th>
-              <th>max</th>
-              <th>md</th>
-            </tr>
-          </table>
+              <h2 id="selection">Selection</h2>
+              <h3 id="selection-top-10">Top 10</h3>
+              <table class="table table-bordered" id="selection-top-10-table">
+                <tr>
+                  <th>Song</th>
+                  <th>Selected Count</th>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-3">
 
-          <h3>Play Count</h3>
-          <table class="table table-bordered" id="play-count">
-            <tr>
-              <th>Group</th>
-              <th colspan="3">Rating Tracks</th>
-              <th colspan="3">Selection Tracks</th>
-              <th colspan="3">Recommendation Tracks</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th>min</th>
-              <th>max</th>
-              <th>md</th>
-              <th>min</th>
-              <th>max</th>
-              <th>md</th>
-              <th>min</th>
-              <th>max</th>
-              <th>md</th>
-            </tr>
-          </table>
+              <div class="bs-docs-sidebar affix" role="complementary" id="navbar">
+                <ul class="nav bs-docs-sidenav">
+                  <li>
+                    <a href="#participants">Participants</a>
+                    <ul class="nav">
+                      <li><a href="#participants-count">Count</a></li>
+                      <li><a href="#participants-demographics">Demographics</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="#general-behavior">General Behavior</a>
+                    <ul class="nav">
+                      <li><a href="#general-behavior-time">Time</a></li>
+                      <li><a href="#general-behavior-play-count">Play Count</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="#ratings">Ratings</a>
+                    <ul class="nav">
+                      <li><a href="#ratings-average">Average</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a href="#selection">Selection</a>
+                    <ul class="nav">
+                      <li><a href="#selection-top-10">Top 10</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
 
-          <h2>Ratings</h2>
-          <table class="table table-bordered" id="ratings">
-            <tr>
-              <th>Song</th>
-              <th>Rating (MD)</th>
-              <th>StdDev</th>
-            </tr>
-          </table>
+            </div>
+          </div>
 
-          <h2>Selection</h2>
-
-          <h3>Top 10</h3>
-          <table class="table table-bordered" id="selection">
-            <tr>
-              <th>Song</th>
-              <th>Selected Count</th>
-            </tr>
-          </table>
         </div>
 
 
