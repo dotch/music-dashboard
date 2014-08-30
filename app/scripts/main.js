@@ -41,6 +41,8 @@
     this.res = _.pluck(result, 'attributes');
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
+    console.log(this.res);
+
     this.songNameForId = function(id) {
       var s = _.find(this.selectionTracks, {'deezer_id': id});
       return s.artist + ' - ' + s.title;
@@ -48,23 +50,100 @@
 
     this.count = function() {
       for (var type in this.recTypes) {
-        $('#count').append('<tr><td>' + type + '</td><td>' + this.recTypes[type].length + '</td></tr>');
+        $('#participants-count-table').append('<tr><td>' + type + '</td><td>' + this.recTypes[type].length + '</td><td>' + 100* (this.recTypes[type].length/this.res.length).toFixed(2) + '%</td></tr>');
       }
-      $('#count').append('<tr><td> all groups </td><td>' + this.res.length + '</td></tr>');
+      $('#participants-count-table').append('<tr><td> all groups </td><td>' + this.res.length + '</td><td>100%</td></tr>');
     };
 
-    this.demographics = function() {
-      for (var type in this.recTypes) {
-        var genders = _.groupBy(this.recTypes[type], 'demographics_gender');
-        for (var gender in genders) {
-          var ages = _.groupBy(genders[gender], 'demographics_age');
-          for (var age in ages) {
-            $('#demographics').append(
-              '<tr><td>' + type + '</td><td>' + gender + '</td><td>' + age + '</td><td>' + ages[age].length + '</td></tr>'
-            );
+    this._demographics = function(arr, name) {
+      var total = 0;
+      var male = 0;
+      var female = 0;
+      var ageRanges = {
+        maennlich: {
+          '15-24': 0,
+          '25-34': 0,
+          '35-44': 0,
+          '45-54': 0,
+          '55-59': 0
+        },
+        weiblich: {
+          '15-24': 0,
+          '25-34': 0,
+          '35-44': 0,
+          '45-54': 0,
+          '55-59': 0
+        }
+      };
+      var genders = _.groupBy(arr, 'demographics_gender');
+      for (var gender in genders) {
+        var ages = _.groupBy(genders[gender], 'demographics_age');
+        for (var age in ages) {
+          var c = ages[age].length;
+          ageRanges[gender][age] = c;
+          total += c;
+          if (gender === 'maennlich') {
+            male += c;
+          } else {
+            female += c;
           }
         }
       }
+      console.log(ageRanges);
+      $('#participants-demographics-table').append([
+        '<tr>',
+          '<td rowspan="10">'+ name +'</td>',
+          '<td rowspan="10">'+ total +'</td>',
+          '<td rowspan="5">male</td>',
+          '<td rowspan="5">'+ male +'</td>',
+          '<td>15-24</td>',
+          '<td>'+ageRanges.maennlich['15-24']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>25-34</td>',
+          '<td>'+ageRanges.maennlich['25-34']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>35-44</td>',
+          '<td>'+ageRanges.maennlich['35-44']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>45-54</td>',
+          '<td>'+ageRanges.maennlich['45-54']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>55-59</td>',
+          '<td>'+ageRanges.maennlich['55-59']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td rowspan="5">female</td>',
+          '<td rowspan="5">'+female+'</td>',
+          '<td>15-24</td>',
+          '<td>'+ageRanges.weiblich['15-24']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>25-34</td>',
+          '<td>'+ageRanges.weiblich['25-34']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>35-44</td>',
+          '<td>'+ageRanges.weiblich['35-44']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>45-54</td>',
+          '<td>'+ageRanges.weiblich['45-54']+'</td>',
+        '</tr>',
+        '<tr>',
+          '<td>55-59</td>',
+          '<td>'+ageRanges.weiblich['55-59']+'</td>',
+        '</tr>',
+      ].join(''));
+    };
+    this.demographics = function() {
+      for (var type in this.recTypes) {
+        this._demographics(this.recTypes[type], type);
+      }
+      this._demographics(this.res, "all groups");
     };
 
     this._time = function(arr, name) {
@@ -76,7 +155,7 @@
       var minTime = _.min(overallTimes);
       var maxTime = _.max(overallTimes);
       var mdTime = median(overallTimes);
-      $('#time').append(
+      $('#general-behavior-time-table').append(
         '<tr><td>' + name + '</td><td>' + minMusicTime.toFixed(2) + '</td><td>' + maxMusicTime.toFixed(2) + '</td><td>' + mdMusicTime.toFixed(2) + '</td><td>' + minTime.toFixed(2) + '</td><td>' + maxTime.toFixed(2) + '</td><td>' + mdTime.toFixed(2) + '</td></tr>'
       );
     };
@@ -106,7 +185,7 @@
       var minRecommendation = _.min(playedRecommendationCount);
       var maxRecommendation = _.max(playedRecommendationCount);
       var mdRecommendation = median(playedRecommendationCount);
-      $('#play-count').append(
+      $('#general-behavior-play-count-table').append(
         ['<tr>',
           '<td>', name, '</td>',
           '<td>', minRating, '</td>',
@@ -147,7 +226,7 @@
         var avg = average(ratings).toFixed(2);
         var dev = stdDev(ratings).toFixed(2);
         var song = this.ratingTracks[i].artist + ' - ' + this.ratingTracks[i].title;
-        $('#ratings').append('<tr><td>' + song + '</td><td>' + avg + '</td><td>' + dev + '</td></tr>');
+        $('#ratings-average-table').append('<tr><td>' + song + '</td><td>' + avg + '</td><td>' + dev + '</td></tr>');
       }
     };
 
@@ -174,7 +253,7 @@
         return -song.count;
       });
       for (var i = 0; i < 10; i++) {
-        $('#selection').append('<tr><td>' + this.songNameForId(topTracks[i].id) + '</td><td>' + topTracks[i].count + '</td></tr>');
+        $('#selection-top-10-table').append('<tr><td>' + this.songNameForId(topTracks[i].id) + '</td><td>' + topTracks[i].count + '</td></tr>');
       }
     };
 
@@ -200,6 +279,9 @@
       dashboard.initialize();
       $('#loader').addClass('hidden');
       $('#container').removeClass('hidden');
+      $('[data-spy="scroll"]').each(function () {
+        $(this).scrollspy('refresh');
+      });
     }
   };
 
