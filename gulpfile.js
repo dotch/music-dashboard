@@ -2,6 +2,7 @@
 // generated on 2014-08-30 using generator-gulp-webapp 0.1.0
 
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 
 // load plugins
 var $ = require('gulp-load-plugins')();
@@ -25,7 +26,7 @@ gulp.task('html', ['styles', 'scripts'], function () {
     var cssFilter = $.filter('**/*.css');
 
     return gulp.src('app/*.html')
-        .pipe($.useref.assets({searchPath: '{.tmp,app}'}))
+        .pipe($.useref.assets({searchPath: '{.tmp,app}'}).on("error", gutil.log))
         .pipe(jsFilter)
         .pipe($.uglify())
         .pipe(jsFilter.restore())
@@ -33,7 +34,7 @@ gulp.task('html', ['styles', 'scripts'], function () {
         .pipe($.csso())
         .pipe(cssFilter.restore())
         .pipe($.useref.restore())
-        .pipe($.useref())
+        .pipe($.useref().on("error", gutil.log))
         .pipe(gulp.dest('dist'))
         .pipe($.size());
 });
