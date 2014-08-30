@@ -1,0 +1,139 @@
+<!doctype html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <title>music dashboard</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <!-- build:css styles/vendor.css -->
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:css styles/main.css -->
+        <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+
+    </head>
+    <body>
+        <!--[if lt IE 10]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div id="loader">Crunching the numbers. Please wait...</div>
+        <div class="container hidden" id="container">
+
+          <h1 class="page-header">Music Survey Real Time Results</h1>
+
+          <h2>Descriptives</h2>
+
+          <h3>Count</h3>
+          <table class="table table-bordered" id="count">
+            <tr>
+              <th>Group</th>
+              <th>Count</th>
+            </tr>
+          </table>
+
+          <h3>Demographics</h3>
+          <table class="table table-bordered" id="demographics">
+            <tr>
+              <th>Group</th>
+              <th>Gender</th>
+              <th>Age</th>
+              <th>Count</th>
+            </tr>
+          </table>
+
+          <h3>Time</h3>
+          <table class="table table-bordered" id="time">
+            <tr>
+              <th>Group</th>
+              <th colspan="3">Music Time (minutes)</th>
+              <th colspan="3">Total Time (minutes)</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th>min</th>
+              <th>max</th>
+              <th>md</th>
+              <th>min</th>
+              <th>max</th>
+              <th>md</th>
+            </tr>
+          </table>
+
+          <h3>Play Count</h3>
+          <table class="table table-bordered" id="play-count">
+            <tr>
+              <th>Group</th>
+              <th colspan="3">Rating Tracks</th>
+              <th colspan="3">Selection Tracks</th>
+              <th colspan="3">Recommendation Tracks</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th>min</th>
+              <th>max</th>
+              <th>md</th>
+              <th>min</th>
+              <th>max</th>
+              <th>md</th>
+              <th>min</th>
+              <th>max</th>
+              <th>md</th>
+            </tr>
+          </table>
+
+          <h2>Ratings</h2>
+          <table class="table table-bordered" id="ratings">
+            <tr>
+              <th>Song</th>
+              <th>Rating (MD)</th>
+              <th>StdDev</th>
+            </tr>
+          </table>
+
+          <h2>Selection</h2>
+
+          <h3>Top 10</h3>
+          <table class="table table-bordered" id="selection">
+            <tr>
+              <th>Song</th>
+              <th>Selected Count</th>
+            </tr>
+          </table>
+        </div>
+
+
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+        <script src="https://parse.com/downloads/javascript/parse-1.2.19.js"></script>
+        <!-- endbower -->
+        <!-- endbuild -->
+
+        <!-- build:js scripts/plugins.js -->
+        <script src="bower_components/bootstrap/js/affix.js"></script>
+        <script src="bower_components/bootstrap/js/alert.js"></script>
+        <script src="bower_components/bootstrap/js/dropdown.js"></script>
+        <script src="bower_components/bootstrap/js/tooltip.js"></script>
+        <script src="bower_components/bootstrap/js/modal.js"></script>
+        <script src="bower_components/bootstrap/js/transition.js"></script>
+        <script src="bower_components/bootstrap/js/button.js"></script>
+        <script src="bower_components/bootstrap/js/popover.js"></script>
+        <script src="bower_components/bootstrap/js/carousel.js"></script>
+        <script src="bower_components/bootstrap/js/scrollspy.js"></script>
+        <script src="bower_components/bootstrap/js/collapse.js"></script>
+        <script src="bower_components/bootstrap/js/tab.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js scripts/main.js -->
+        <script src="scripts/main.js"></script>
+        <!-- endbuild -->
+</body>
+</html>
