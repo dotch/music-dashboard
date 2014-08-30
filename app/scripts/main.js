@@ -41,11 +41,39 @@
     this.res = _.pluck(result, 'attributes');
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
-    console.log(this.res);
+    this.initAudio = function() {
+      this.player = document.createElement('audio');
+      this.player.autoplay = false;
+      document.body.appendChild(this.player);
+      var _this = this;
+      $('.play-button').click(function(e){
+        var $button = $(e.target);
+        var url = $button.data('url');
+        if (_this.player.src === url) {
+          _this.stopPlaying();
+        } else {
+          _this.playUrl(url);
+        }
+      });
+      $(this.player).on('play', function(){
+        $('[data-url]').html('<i class="glyphicon glyphicon-play"></i>');
+        $('[data-url="'+_this.player.src+'"]').html('<i class="glyphicon glyphicon-stop"></i>');
+      });
+      $(this.player).on('ended pause', function(){
+        $('[data-url="'+_this.player.src+'"]').html('<i class="glyphicon glyphicon-play"></i>');
+        _this.player.removeAttribute('src');
+      });
+    };
+    this.playUrl = function(url) {
+      this.player.src = url;
+      this.player.autoplay = true;
+    };
+    this.stopPlaying = function() {
+      this.player.pause();
+    };
 
-    this.songNameForId = function(id) {
-      var s = _.find(this.selectionTracks, {'deezer_id': id});
-      return s.artist + ' - ' + s.title;
+    this.songForId = function(id) {
+      return _.find(this.selectionTracks, {'deezer_id': id});
     };
 
     this.count = function() {
@@ -143,7 +171,7 @@
       for (var type in this.recTypes) {
         this._demographics(this.recTypes[type], type);
       }
-      this._demographics(this.res, "all groups");
+      this._demographics(this.res, 'all groups');
     };
 
     this._time = function(arr, name) {
@@ -225,8 +253,9 @@
         var ratings = songRatings[i];
         var avg = average(ratings).toFixed(2);
         var dev = stdDev(ratings).toFixed(2);
-        var song = this.ratingTracks[i].artist + ' - ' + this.ratingTracks[i].title;
-        $('#ratings-average-table').append('<tr><td>' + song + '</td><td>' + avg + '</td><td>' + dev + '</td></tr>');
+        var song = this.ratingTracks[i];
+        var songString = this.ratingTracks[i].artist + ' - ' + this.ratingTracks[i].title;
+        $('#ratings-average-table').append('<tr><td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td><td>' + songString + '</td><td>' + avg + '</td><td>' + dev + '</td></tr>');
       }
     };
 
@@ -253,7 +282,9 @@
         return -song.count;
       });
       for (var i = 0; i < 10; i++) {
-        $('#selection-top-10-table').append('<tr><td>' + this.songNameForId(topTracks[i].id) + '</td><td>' + topTracks[i].count + '</td></tr>');
+        var song = this.songForId(topTracks[i].id);
+        var songString = song.artist + ' - ' + song.title;
+        $('#selection-top-10-table').append('<tr><td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td><td>' + songString + '</td><td>' + topTracks[i].count + '</td></tr>');
       }
     };
 
@@ -264,6 +295,7 @@
       this.playCounts();
       this.ratings();
       this.selection();
+      this.initAudio();
     };
   };
 
