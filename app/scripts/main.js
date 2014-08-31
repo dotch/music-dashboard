@@ -47,7 +47,7 @@
       document.body.appendChild(this.player);
       var _this = this;
       $('.play-button').click(function(e){
-        var $button = $(e.target);
+        var $button = $(e.currentTarget);
         var url = $button.data('url');
         if (_this.player.src === url) {
           _this.stopPlaying();

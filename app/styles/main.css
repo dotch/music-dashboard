@@ -1,7 +1,9 @@
 body {
   position: relative;
 }
-
+.table-middle.table > tbody > tr > td {
+  vertical-align: middle;
+}
 
 /*
 * Side navigation
