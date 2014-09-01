@@ -35,14 +35,35 @@
     return Math.sqrt(variance(values));
   }
 
+  function _screen(r) {
+    var accept = true;
+    if (r.demographics_age == null) {
+      return {acc: false, reason: "incomplete (reload, backbutton, etc)"};
+    }
+    if (r.survey_control_should_be_1 !== "1") {
+      return {acc: false, reason: "control question 1"};
+    }
+    if (r.played_selection_tracks.length === 0 ||
+        r.played_rating_tracks.length === 0 ) {
+      return {acc: false, reason: "no songs played"};
+    }
+    return {acc: true};
+  }
+
+  function screen(r) {
+    return _screen(r).acc;
+  }
+
   var Dashboard = function(result, ratingTracks, selectionTracks) {
     this.ratingTracks = _.pluck(ratingTracks, 'attributes');
     this.selectionTracks = _.pluck(selectionTracks, 'attributes');
     this.resUnfiltered = _.pluck(result, 'attributes');
-    this.res = _.filter(this.resUnfiltered, function(r) {
-      return r.demographics_age != null;
-    });
-    console.log(this.res);
+
+    this.res = _.filter(this.resUnfiltered, screen);
+    this.filtered = _.reject(this.resUnfiltered, screen);
+    console.log("res", this.res);
+    console.log("res", this.filtered);
+
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
     this.initAudio = function() {
@@ -85,6 +106,18 @@
         $('#participants-count-table').append('<tr><td>' + type + '</td><td>' + this.recTypes[type].length + '</td><td>' + 100* (this.recTypes[type].length/this.res.length).toFixed(2) + '%</td></tr>');
       }
       $('#participants-count-table').append('<tr><td> all groups </td><td>' + this.res.length + '</td><td>100%</td></tr>');
+    };
+
+    this.screenOut = function() {
+      var items = [];
+      this.filtered.forEach(function(item){
+        items.push({reason: _screen(item).reason});
+      })
+      var gi = _.countBy(items, "reason");
+      for (var reason in gi) {
+        $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + gi[reason] + '</td></tr>');
+      }
+      $('#participants-out-table').append('<tr><td> all reasons </td><td>' + this.filtered.length + '</td></tr>');
     };
 
     this._demographics = function(arr, name) {
@@ -270,6 +303,7 @@
 
     this.initialize = function() {
       this.count();
+      this.screenOut();
       this.demographics();
       this.time();
       this.playCounts();
