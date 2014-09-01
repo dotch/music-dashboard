@@ -38,7 +38,11 @@
   var Dashboard = function(result, ratingTracks, selectionTracks) {
     this.ratingTracks = _.pluck(ratingTracks, 'attributes');
     this.selectionTracks = _.pluck(selectionTracks, 'attributes');
-    this.res = _.pluck(result, 'attributes');
+    this.resUnfiltered = _.pluck(result, 'attributes');
+    this.res = _.filter(this.resUnfiltered, function(r) {
+      return r.demographics_age != null;
+    });
+    console.log(this.res);
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
     this.initAudio = function() {
@@ -103,11 +107,13 @@
           '55-59': 0
         }
       };
+      console.log(ageRanges, this.res);
       var genders = _.groupBy(arr, 'demographics_gender');
       for (var gender in genders) {
         var ages = _.groupBy(genders[gender], 'demographics_age');
         for (var age in ages) {
           var c = ages[age].length;
+          console.log(ageRanges, gender);
           ageRanges[gender][age] = c;
           total += c;
           if (gender === 'maennlich') {
@@ -254,6 +260,7 @@
       var topTracks = _.sortBy(selectedTracks, function(song) {
         return -song.count;
       });
+      console.log(topTracks);
       for (var i = 0; i < 10; i++) {
         var song = this.songForId(topTracks[i].id);
         var songString = song.artist + ' - ' + song.title;
