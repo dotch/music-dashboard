@@ -61,8 +61,6 @@
 
     this.res = _.filter(this.resUnfiltered, screen);
     this.filtered = _.reject(this.resUnfiltered, screen);
-    console.log("res", this.res);
-    console.log("res", this.filtered);
 
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
@@ -117,7 +115,7 @@
       for (var reason in gi) {
         $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + gi[reason] + '</td></tr>');
       }
-      $('#participants-out-table').append('<tr><td> all reasons </td><td>' + this.filtered.length + '</td></tr>');
+      $('#participants-out-table').append('<tr><td> all reasons </td><td>' + this.filtered.length + ' (' + 100 * (this.filtered.length/this.resUnfiltered.length).toFixed(2) + '%)</td></tr>');
     };
 
     this._demographics = function(arr, name) {
@@ -140,13 +138,11 @@
           '55-59': 0
         }
       };
-      console.log(ageRanges, this.res);
       var genders = _.groupBy(arr, 'demographics_gender');
       for (var gender in genders) {
         var ages = _.groupBy(genders[gender], 'demographics_age');
         for (var age in ages) {
           var c = ages[age].length;
-          console.log(ageRanges, gender);
           ageRanges[gender][age] = c;
           total += c;
           if (gender === 'maennlich') {
@@ -293,7 +289,6 @@
       var topTracks = _.sortBy(selectedTracks, function(song) {
         return -song.count;
       });
-      console.log(topTracks);
       for (var i = 0; i < 10; i++) {
         var song = this.songForId(topTracks[i].id);
         var songString = song.artist + ' - ' + song.title;
