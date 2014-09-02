@@ -149,7 +149,7 @@
       $('#participants-out-table').append('<tr><td> all reasons </td><td>' + this.filtered.length + ' (' + 100 * (this.filtered.length/this.resUnfiltered.length).toFixed(2) + '%)</td></tr>');
     };
 
-    this._demographics = function(arr, name) {
+    this._demographics = function(arr, name, showMax) {
       var total = 0;
       var male = 0;
       var female = 0;
@@ -183,7 +183,21 @@
           }
         }
       }
-      $('#participants-demographics-table').append([
+      var trs = showMax ? [
+        '<tr class="text-center">',
+          '<td rowspan="3" class="text-left">'+ name +'</td>',
+          '<td>'+ageRanges.maennlich['15-24']+' <small class="text-muted">(10)</small></td>',
+          '<td>'+ageRanges.maennlich['25-34']+' <small class="text-muted">(10)</small></td>',
+          '<td>'+ageRanges.maennlich['35-44']+' <small class="text-muted">(12)</small></td>',
+          '<td>'+ageRanges.maennlich['45-54']+' <small class="text-muted">(13)</small></td>',
+          '<td>'+ageRanges.maennlich['55-59']+' <small class="text-muted">(5)</small></td>',
+          '<td>'+ageRanges.weiblich['15-24']+' <small class="text-muted">(9)</small></td>',
+          '<td>'+ageRanges.weiblich['25-34']+' <small class="text-muted">(10)</small></td>',
+          '<td>'+ageRanges.weiblich['35-44']+' <small class="text-muted">(12)</small></td>',
+          '<td>'+ageRanges.weiblich['45-54']+' <small class="text-muted">(13)</small></td>',
+          '<td>'+ageRanges.weiblich['55-59']+' <small class="text-muted">(6)</small></td>',
+        '</tr>'
+      ].join('') : [
         '<tr class="text-center">',
           '<td rowspan="3" class="text-left">'+ name +'</td>',
           '<td>'+ageRanges.maennlich['15-24']+'</td>',
@@ -196,7 +210,9 @@
           '<td>'+ageRanges.weiblich['35-44']+'</td>',
           '<td>'+ageRanges.weiblich['45-54']+'</td>',
           '<td>'+ageRanges.weiblich['55-59']+'</td>',
-        '</tr>',
+        '</tr>'
+      ].join('');
+      trs += ([
         '<tr class="text-center">',
           '<td colspan="5">'+male+'</td>',
           '<td colspan="5">'+female+'</td>',
@@ -205,10 +221,11 @@
           '<td colspan="10">'+total+'</td>',
         '</tr>'
       ].join(''));
+      $('#participants-demographics-table').append(trs);
     };
     this.demographics = function() {
       for (var type in this.recTypes) {
-        this._demographics(this.recTypes[type], type);
+        this._demographics(this.recTypes[type], type, true);
       }
       this._demographics(this.res, 'all groups');
       this._demographics(_.filter(this.filtered, function(i){return i.demographics_age != null}), 'screened out (exc. incomplete)');
@@ -351,6 +368,28 @@
       }
     };
 
+    this._recommendations = function(arr, name) {
+      var acceptedRecCounts = _.pluck(arr, 'selected_recommendation_track_count');
+      var minAcc = _.min(acceptedRecCounts);
+      var maxAcc = _.max(acceptedRecCounts);
+      var mdAcc = median(acceptedRecCounts);
+      $('#recommendations-acceptance-table').append(
+        ['<tr>',
+          '<td>', name, '</td>',
+          '<td>', minAcc, '</td>',
+          '<td>', maxAcc, '</td>',
+          '<td>', mdAcc, '</td>',
+        '</tr>'
+        ].join('')
+      );
+    };
+
+    this.recommendations = function() {
+      for (var type in this.recTypes) {
+        this._recommendations(this.recTypes[type], type);
+      }
+    };
+
     this.initialize = function() {
       this.count();
       this.screenOut();
@@ -360,6 +399,7 @@
       this.playCounts();
       this.ratings();
       this.selection();
+      this.recommendations();
       this.initAudio();
     };
   };
