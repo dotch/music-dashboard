@@ -49,23 +49,20 @@
     ].join('-');
   }
 
-
-
   function _screen(r) {
-    var accept = true;
-    if (r.demographics_age == null) {
-      return {acc: false, reason: "incomplete (reload, backbutton, etc)"};
+    if (r.recommendation_type == null) {
+      return {acc: false, reason: 'incomplete (reload, backbutton, etc)'};
     }
-    if (r.survey_control_should_be_1 !== "1") {
-      return {acc: false, reason: "control question 1"};
+    if (r.survey_control_should_be_1 !== '1') {
+      return {acc: false, reason: 'control question 1'};
     }
     if (r.played_selection_tracks.length === 0 ||
         r.played_rating_tracks.length === 0 ) {
-      return {acc: false, reason: "no songs played"};
+      return {acc: false, reason: 'no songs played'};
     }
     if (r.music_time_minutes < 4 ||
         r.time_minutes < 7 ) {
-      return {acc: false, reason: "time (music < 4min or total < 7min)"};
+      return {acc: false, reason: 'time (music < 4min or total < 7min)'};
     }
     return {acc: true};
   }
@@ -124,9 +121,13 @@
         var d = new Date(r.end_time);
         return iso(d);
       });
-      for (var date in resUnfilteredDaily) {
-        $('#participants-count-table').append('<tr><td>' + date + '</td><td>' + resUnfilteredDaily[date].length + '</td></tr>');
-      }
+      var keys = _.keys(resUnfilteredDaily).sort();
+      console.log(keys);
+      keys.forEach(function(k) {
+        $('#participants-count-table').append('<tr><td>' + k + '</td><td>' + resUnfilteredDaily[k].length + '</td></tr>');
+      });
+      $('#participants-count-table').append('<tr><td>' + 'All' + '</td><td>' + this.resUnfiltered.length + '</td></tr>');
+
     };
 
     this.groups = function() {
@@ -140,8 +141,8 @@
       var items = [];
       this.filtered.forEach(function(item){
         items.push({reason: _screen(item).reason});
-      })
-      var gi = _.countBy(items, "reason");
+      });
+      var gi = _.countBy(items, 'reason');
       for (var reason in gi) {
         $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + gi[reason] + '</td></tr>');
       }
@@ -328,7 +329,7 @@
             '<th>Song</th>',
             '<th>Selected Count</th>',
           '</tr>'
-      ].join("");
+      ].join('');
       for (var i = 0; i < 10; i++) {
         var song = this.songForId(topTracks[i].id);
         var songString = song.artist + ' - ' + song.title;
@@ -338,7 +339,7 @@
             '<td>' + songString + '</td>',
             '<td>' + topTracks[i].count + '</td>',
           '</tr>'
-        ].join("")
+        ].join('');
       }
       table += '</table>';
       $('#selection-top-10').after(table);
@@ -348,7 +349,7 @@
       for (var type in this.recTypes) {
         this._selection(this.recTypes[type], type);
       }
-    }
+    };
 
     this.initialize = function() {
       this.count();
