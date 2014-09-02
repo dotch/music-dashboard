@@ -35,6 +35,22 @@
     return Math.sqrt(variance(values));
   }
 
+  function pad(n, padSize) {
+    var str = n.toString();
+    var padZeros = (new Array(padSize)).join('0');
+    return (padZeros + str).substr(-padSize);
+  }
+
+  function iso(d) {
+    return [
+      pad(d.getFullYear(), 4),
+      pad(d.getMonth() + 1, 2),
+      pad(d.getDate(d), 2)
+    ].join('-');
+  }
+
+
+
   function _screen(r) {
     var accept = true;
     if (r.demographics_age == null) {
@@ -46,6 +62,10 @@
     if (r.played_selection_tracks.length === 0 ||
         r.played_rating_tracks.length === 0 ) {
       return {acc: false, reason: "no songs played"};
+    }
+    if (r.music_time_minutes < 4 ||
+        r.time_minutes < 7 ) {
+      return {acc: false, reason: "time (music < 4min or total < 7min)"};
     }
     return {acc: true};
   }
@@ -100,10 +120,20 @@
     };
 
     this.count = function() {
-      for (var type in this.recTypes) {
-        $('#participants-count-table').append('<tr><td>' + type + '</td><td>' + this.recTypes[type].length + '</td><td>' + 100* (this.recTypes[type].length/this.res.length).toFixed(2) + '%</td></tr>');
+      var resUnfilteredDaily = _.groupBy(this.resUnfiltered, function(r) {
+        var d = new Date(r.end_time);
+        return iso(d);
+      });
+      for (var date in resUnfilteredDaily) {
+        $('#participants-count-table').append('<tr><td>' + date + '</td><td>' + resUnfilteredDaily[date].length + '</td></tr>');
       }
-      $('#participants-count-table').append('<tr><td> all groups </td><td>' + this.res.length + '</td><td>100%</td></tr>');
+    };
+
+    this.groups = function() {
+      for (var type in this.recTypes) {
+        $('#participants-groups-table').append('<tr><td>' + type + '</td><td>' + this.recTypes[type].length + '</td><td>' + 100* (this.recTypes[type].length/this.res.length).toFixed(2) + '%</td></tr>');
+      }
+      $('#participants-groups-table').append('<tr><td> all groups </td><td>' + this.res.length + '</td><td>100%</td></tr>');
     };
 
     this.screenOut = function() {
@@ -180,6 +210,7 @@
         this._demographics(this.recTypes[type], type);
       }
       this._demographics(this.res, 'all groups');
+      this._demographics(_.filter(this.filtered, function(i){return i.demographics_age != null}), 'screened out (exc. incomplete)');
     };
 
     this._time = function(arr, name) {
@@ -233,7 +264,7 @@
           '<td>', minRecommendation, '</td>',
           '<td>', maxRecommendation, '</td>',
           '<td>', mdRecommendation, '</td>',
-          '</tr>'
+        '</tr>'
         ].join('')
       );
     };
@@ -267,9 +298,9 @@
       }
     };
 
-    this.selection = function() {
+    this._selection = function(results, name) {
       var selectedTracksObj = {};
-      var selectedTrackResults = _.pluck(this.res, 'selected_tracks');
+      var selectedTrackResults = _.pluck(results, 'selected_tracks');
       selectedTrackResults.forEach(function(selection) {
         for (var i = 0; i < selection.length; i++) {
           if (selectedTracksObj[selection[i]]) {
@@ -289,16 +320,40 @@
       var topTracks = _.sortBy(selectedTracks, function(song) {
         return -song.count;
       });
+      var table = [
+        '<h4>',name,'</h4>',
+        '<table class="table table-bordered table-middle">',
+          '<tr>',
+            '<th style="padding: 0 8px; vertical-align: middle; text-align: center"> <img src="images/deezer.png" style="height: 36px" alt="deezer-logo"></th>',
+            '<th>Song</th>',
+            '<th>Selected Count</th>',
+          '</tr>'
+      ].join("");
       for (var i = 0; i < 10; i++) {
         var song = this.songForId(topTracks[i].id);
         var songString = song.artist + ' - ' + song.title;
-        $('#selection-top-10-table').append('<tr><td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td><td>' + songString + '</td><td>' + topTracks[i].count + '</td></tr>');
+        table += [
+          '<tr>',
+            '<td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td>',
+            '<td>' + songString + '</td>',
+            '<td>' + topTracks[i].count + '</td>',
+          '</tr>'
+        ].join("")
       }
+      table += '</table>';
+      $('#selection-top-10').after(table);
     };
+
+    this.selection = function() {
+      for (var type in this.recTypes) {
+        this._selection(this.recTypes[type], type);
+      }
+    }
 
     this.initialize = function() {
       this.count();
       this.screenOut();
+      this.groups();
       this.demographics();
       this.time();
       this.playCounts();
@@ -316,6 +371,7 @@
 
   var start = function() {
     if (result && selectionTracks && ratingTracks) {
+      console.log(result, result.length);
       var dashboard = new Dashboard(result, ratingTracks, selectionTracks);
       dashboard.initialize();
       $('#loader').addClass('hidden');
@@ -328,6 +384,7 @@
 
   var r = Parse.Object.extend('Result');
   var rq = new Parse.Query(r);
+  rq.limit(1000);
   rq.find().then(function(res) {
     result = res;
     start();
