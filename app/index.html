@@ -10,20 +10,65 @@
         <!-- build:css styles/vendor.css -->
         <!-- bower:css -->
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="bower_components/c3/c3.css" />
         <!-- endbower -->
         <!-- endbuild -->
 
         <!-- build:css styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
         <!-- endbuild -->
-
     </head>
+
+    <script type="template" id="participants-count-template">
+      <div id="chart"></div>
+      <table class="table table-bordered">
+        <tr>
+          <th>Date</th>
+          <th>Count</th>
+        </tr>
+        <%
+          _.each(days, function(day) {
+        %>
+          <tr>
+            <td><%= day.date %></td>
+            <td><%= day.count %></td>
+          </tr>
+        <% }); %>
+      </table>
+    </script>
+    <script type="template" id="recommendations-acceptance-template">
+      <table class="table table-bordered">
+        <tr>
+          <th>Group</th>
+          <th colspan="4">Selected</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>min</th>
+          <th>max</th>
+          <th>md</th>
+          <th>mn</th>
+        </tr>
+        <%
+          _.each(types, function(type) {
+        %>
+          <tr>
+            <td><%= type.type %></td>
+            <td><%= type.min %></td>
+            <td><%= type.max %></td>
+            <td><%= type.md %></td>
+            <td><%= type.mn %></td>
+          </tr>
+        <% }); %>
+      </table>
+    </script>
+
     <body data-spy="scroll" data-target="#navbar">
         <!--[if lt IE 10]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <div id="loader">Crunching the numbers. Please wait...</div>
-        <div class="container hidden" id="container">
+        <div class="container invisible" id="container">
           <div class="row">
             <div class="col-md-9">
 
@@ -31,13 +76,6 @@
 
               <h2 id="participants">Participants</h2>
               <h3 id="participants-count">Count</h3>
-              <table class="table table-bordered" id="participants-count-table">
-                <tr>
-                  <th>Date</th>
-                  <th>Count</th>
-                </tr>
-              </table>
-
               <h3 id="participants-out">Out</h3>
               <table class="table table-bordered" id="participants-out-table">
                 <tr>
@@ -138,18 +176,6 @@
 
               <h2 id="recommendations">Recommendations</h2>
               <h3 id="recommendations-acceptance">Acceptance</h3>
-              <table class="table table-bordered" id="recommendations-acceptance-table">
-                <tr>
-                  <th>Group</th>
-                  <th colspan="3">Selected</th>
-                </tr>
-                <tr>
-                  <th></th>
-                  <th>min</th>
-                  <th>max</th>
-                  <th>md</th>
-                </tr>
-              </table>
             </div>
 
 
@@ -206,6 +232,8 @@
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
         <script src="bower_components/lodash/dist/lodash.js"></script>
+        <script src="bower_components/d3/d3.js"></script>
+        <script src="bower_components/c3/c3.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
 

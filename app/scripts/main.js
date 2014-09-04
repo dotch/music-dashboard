@@ -1,4 +1,4 @@
-/* global Parse, _ */
+/* global Parse, _, c3 */
 'use strict';
 
 (function() {
@@ -50,7 +50,7 @@
   }
 
   function _screen(r) {
-    if (r.recommendation_type == null) {
+    if (!r.recommendation_type) {
       return {acc: false, reason: 'incomplete (reload, backbutton, etc)'};
     }
     if (r.survey_control_should_be_1 !== '1') {
@@ -118,16 +118,38 @@
 
     this.count = function() {
       var resUnfilteredDaily = _.groupBy(this.resUnfiltered, function(r) {
-        var d = new Date(r.end_time);
-        return iso(d);
+        return iso(new Date(r.end_time));
       });
       var keys = _.keys(resUnfilteredDaily).sort();
-      console.log(keys);
+      var data = [];
+      var counts = [];
       keys.forEach(function(k) {
-        $('#participants-count-table').append('<tr><td>' + k + '</td><td>' + resUnfilteredDaily[k].length + '</td></tr>');
+        counts.push(resUnfilteredDaily[k].length);
+        data.push({date: k, count: resUnfilteredDaily[k].length});
       });
-      $('#participants-count-table').append('<tr><td>' + 'All' + '</td><td>' + this.resUnfiltered.length + '</td></tr>');
-
+      var template = $('#participants-count-template').html();
+      var t = _.template(template,{'days': data});
+      $('#participants-count').after(t);
+      // chart
+      keys.unshift('x');
+      counts.unshift('participants');
+      c3.generate({
+        data: {
+          x: 'x',
+          columns: [
+            keys,
+            counts
+          ]
+        },
+        axis: {
+          x: {
+            type: 'timeseries',
+            tick: {
+              format: '%Y-%m-%d'
+            }
+          }
+        }
+      });
     };
 
     this.groups = function() {
@@ -368,26 +390,22 @@
       }
     };
 
-    this._recommendations = function(arr, name) {
-      var acceptedRecCounts = _.pluck(arr, 'selected_recommendation_track_count');
-      var minAcc = _.min(acceptedRecCounts);
-      var maxAcc = _.max(acceptedRecCounts);
-      var mdAcc = median(acceptedRecCounts);
-      $('#recommendations-acceptance-table').append(
-        ['<tr>',
-          '<td>', name, '</td>',
-          '<td>', minAcc, '</td>',
-          '<td>', maxAcc, '</td>',
-          '<td>', mdAcc, '</td>',
-        '</tr>'
-        ].join('')
-      );
-    };
-
-    this.recommendations = function() {
+    this.acceptance = function() {
+      var data = [];
       for (var type in this.recTypes) {
-        this._recommendations(this.recTypes[type], type);
+        var counts = _.pluck(this.recTypes[type],'selected_recommendation_track_count');
+        data.push({
+          type: type,
+          min: _.min(counts),
+          max: _.max(counts),
+          md: median(counts),
+          mn: average(counts)
+        });
       }
+      console.log(data);
+      var template = $('#recommendations-acceptance-template').html();
+      var t = _.template(template,{'types': data});
+      $('#recommendations-acceptance').after(t);
     };
 
     this.initialize = function() {
@@ -399,7 +417,7 @@
       this.playCounts();
       this.ratings();
       this.selection();
-      this.recommendations();
+      this.acceptance();
       this.initAudio();
     };
   };
@@ -416,7 +434,7 @@
       var dashboard = new Dashboard(result, ratingTracks, selectionTracks);
       dashboard.initialize();
       $('#loader').addClass('hidden');
-      $('#container').removeClass('hidden');
+      $('#container').removeClass('invisible');
       $('[data-spy="scroll"]').each(function () {
         $(this).scrollspy('refresh');
       });
