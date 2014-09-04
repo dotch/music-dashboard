@@ -50,21 +50,29 @@
   }
 
   function _screen(r) {
+    var reasons = [];
     if (!r.recommendation_type) {
-      return {acc: false, reason: 'incomplete (reload, backbutton, etc)'};
+      reasons.push('incomplete');
     }
     if (r.survey_control_should_be_1 !== '1') {
-      return {acc: false, reason: 'control question 1'};
+      reasons.push('control_question_1');
+    }
+    if (r.survey_check_1 && r.survey_check_1 !== '3') {
+      reasons.push('control_question_2');
+    }
+    if (r.survey_check_2 && r.survey_check_2 !== '5') {
+      reasons.push('control_question_3');
     }
     if (r.played_selection_tracks.length === 0 ||
         r.played_rating_tracks.length === 0 ) {
-      return {acc: false, reason: 'no songs played'};
+      reasons.push('no_songs_played');
     }
     if (r.music_time_minutes < 4 ||
         r.time_minutes < 7 ) {
-      return {acc: false, reason: 'time (music < 4min or total < 7min)'};
+      reasons.push('music_time_lt_4_total_lt_7');
     }
-    return {acc: true};
+    var acc = !reasons.length;
+    return {acc: acc, reasons: reasons};
   }
 
   function screen(r) {
@@ -79,6 +87,7 @@
     this.res = _.filter(this.resUnfiltered, screen);
     this.filtered = _.reject(this.resUnfiltered, screen);
 
+    console.log(this.res.length, this.filtered.length)
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
     this.initAudio = function() {
@@ -160,14 +169,25 @@
     };
 
     this.screenOut = function() {
-      var items = [];
+      var reasonsCount = {};
       this.filtered.forEach(function(item){
-        items.push({reason: _screen(item).reason});
+        var itemReasons = _screen(item).reasons;
+        for (var i = 0; i < itemReasons.length; i++) {
+          var reason = itemReasons[i];
+          if (reasonsCount[reason]) {
+            reasonsCount[reason]++;
+          } else {
+            reasonsCount[reason] = 1;
+          }
+        }
       });
-      var gi = _.countBy(items, 'reason');
-      for (var reason in gi) {
-        $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + gi[reason] + '</td></tr>');
-      }
+      console.log(reasonsCount);
+      var reasons = _.keys(reasonsCount);
+      console.log(reasons);
+      //var gi = _.countBy(items, 'reason');
+      reasons.forEach(function(reason){
+        $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + reasonsCount[reason] + '</td></tr>');
+      });
       $('#participants-out-table').append('<tr><td> all reasons </td><td>' + this.filtered.length + ' (' + 100 * (this.filtered.length/this.resUnfiltered.length).toFixed(2) + '%)</td></tr>');
     };
 
