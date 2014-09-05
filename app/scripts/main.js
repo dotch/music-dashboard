@@ -53,23 +53,24 @@
     var reasons = [];
     if (!r.recommendation_type) {
       reasons.push('incomplete');
-    }
-    if (r.survey_control_should_be_1 !== '1') {
-      reasons.push('control_question_1');
-    }
-    if (r.survey_check_1 && r.survey_check_1 !== '3') {
-      reasons.push('control_question_2');
-    }
-    if (r.survey_check_2 && r.survey_check_2 !== '5') {
-      reasons.push('control_question_3');
-    }
-    if (r.played_selection_tracks.length === 0 ||
-        r.played_rating_tracks.length === 0 ) {
-      reasons.push('no_songs_played');
-    }
-    if (r.music_time_minutes < 4 ||
-        r.time_minutes < 7 ) {
-      reasons.push('music_time_lt_4_total_lt_7');
+    } else {
+      if (r.survey_control_should_be_1 !== '1') {
+        reasons.push('_control_question_1');
+      }
+      if (r.survey_check_1 && r.survey_check_1 !== '3') {
+        reasons.push('_control_question_2');
+      }
+      if (r.survey_check_2 && r.survey_check_2 !== '5') {
+        reasons.push('_control_question_3');
+      }
+      if (r.played_selection_tracks.length === 0 ||
+          r.played_rating_tracks.length === 0 ) {
+        reasons.push('_no_songs_played');
+      }
+      if (r.music_time_minutes < 4 ||
+          r.time_minutes < 7 ) {
+        reasons.push('_music_time_lt_4_total_lt_7');
+      }
     }
     var acc = !reasons.length;
     return {acc: acc, reasons: reasons};
