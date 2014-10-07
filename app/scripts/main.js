@@ -455,9 +455,12 @@
       c3.generate({
         bindto: lorenzIdSelector,
         data: {
-            columns: [
-                portions,
-            ]
+          columns: [
+            portions,
+          ]
+        },
+        point: {
+          show: false
         }
       });
 
