@@ -80,14 +80,13 @@
     return _screen(r).acc;
   }
 
-  var Dashboard = function(result, ratingTracks, selectionTracks) {
+  var Dashboard = function(result, ratingTracks, selectionTracks, selectionTracksUnknown) {
     this.ratingTracks = _.pluck(ratingTracks, 'attributes');
     this.selectionTracks = _.pluck(selectionTracks, 'attributes');
+    this.selectionTracksUnknown = _.pluck(selectionTracksUnknown, 'attributes');
     this.resUnfiltered = _.pluck(result, 'attributes');
-
     this.res = _.filter(this.resUnfiltered, screen);
     this.filtered = _.reject(this.resUnfiltered, screen);
-
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
     this.initAudio = function() {
@@ -122,7 +121,8 @@
     };
 
     this.songForId = function(id) {
-      return _.find(this.selectionTracks, {'deezer_id': id});
+      return _.find(this.selectionTracks, {'deezer_id': id}) ||
+        _.find(this.selectionTracksUnknown, {'deezer_id': id}) ;
     };
 
     this.count = function() {
@@ -384,25 +384,28 @@
 
     this._selection = function(results, name) {
       var selectedTracksObj = {};
+      var selectionTracksIds = name.indexOf('unknown') > -1 ?
+        _.pluck(this.selectionTracksUnknown, 'deezer_id') :
+        _.pluck(this.selectionTracks, 'deezer_id');
+      selectionTracksIds.forEach(function(id){
+        selectedTracksObj[id] = 0;
+      });
       var selectedTrackResults = _.pluck(results, 'selected_tracks');
       selectedTrackResults.forEach(function(selection) {
         for (var i = 0; i < selection.length; i++) {
-          if (selectedTracksObj[selection[i]]) {
-            selectedTracksObj[selection[i]]++;
-          } else {
-            selectedTracksObj[selection[i]] = 1;
-          }
+          selectedTracksObj[selection[i]]++;
         }
       });
       var selectedTracks = [];
+
       for (var track in selectedTracksObj) {
         selectedTracks.push({
           'id': parseInt(track),
           'count': selectedTracksObj[track]
         });
       }
-      var topTracks = _.sortBy(selectedTracks, function(song) {
-        return -song.count;
+      var tracksAscending = _.sortBy(selectedTracks, function(song) {
+        return song.count;
       });
       var table = [
         '<h4>',name,'</h4>',
@@ -413,19 +416,51 @@
             '<th>Selected Count</th>',
           '</tr>'
       ].join('');
-      for (var i = 0; i < 10; i++) {
-        var song = this.songForId(topTracks[i].id);
+
+      for (var i = tracksAscending.length-1; i > tracksAscending.length-11; i--) {
+        var song = this.songForId(tracksAscending[i].id);
         var songString = song.artist + ' - ' + song.title;
         table += [
           '<tr>',
             '<td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td>',
             '<td>' + songString + '</td>',
-            '<td>' + topTracks[i].count + '</td>',
+            '<td>' + tracksAscending[i].count + '</td>',
           '</tr>'
         ].join('');
       }
       table += '</table>';
       $('#selection-top-10').after(table);
+
+      // LORENZ CURVE
+      var lorenzId = 'lorenz-' + name;
+      $('#selection-lorenz').after('<h4>'+ name +'</h4><div id="'+ lorenzId +'"></div>');
+
+      var totalSalesCount = _.reduce(_.pluck(tracksAscending, 'count'), function(sum, num) {
+        return sum + num;
+      });
+      var cummulativeSales = _.reduce(_.pluck(tracksAscending, 'count'), function (acc, n) {
+        // console.log(acc, n);
+        var val = ((acc.length > 0 ? acc[acc.length-1] : 0) + n);
+        acc.push(
+          val
+        );
+        return acc;
+      }, []);
+
+      var portions = _.map(cummulativeSales, function(i) {
+        return (i / totalSalesCount);
+      });
+      portions.unshift('cummulativeSales');
+      var lorenzIdSelector = '#' + lorenzId;
+      c3.generate({
+        bindto: lorenzIdSelector,
+        data: {
+            columns: [
+                portions,
+            ]
+        }
+      });
+
     };
 
     this.selection = function() {
@@ -446,7 +481,6 @@
           mn: average(counts)
         });
       }
-      console.log(data);
       var template = $('#recommendations-acceptance-template').html();
       var t = _.template(template,{'types': data});
       $('#recommendations-acceptance').after(t);
@@ -471,11 +505,11 @@
   var result;
   var ratingTracks;
   var selectionTracks;
+  var selectionTracksUnknown;
 
   var start = function() {
-    if (result && selectionTracks && ratingTracks) {
-      console.log(result, result.length);
-      var dashboard = new Dashboard(result, ratingTracks, selectionTracks);
+    if (result && selectionTracks && selectionTracksUnknown && ratingTracks) {
+      var dashboard = new Dashboard(result, ratingTracks, selectionTracks, selectionTracksUnknown);
       dashboard.initialize();
       $('#loader').addClass('hidden');
       $('#container').removeClass('invisible');
@@ -502,9 +536,17 @@
 
   var st = Parse.Object.extend('SelectionTrack');
   var stq = new Parse.Query(st);
-  stq.limit(500);
+  stq.limit(1000);
   stq.find().then(function(res) {
     selectionTracks = res;
+    start();
+  });
+
+  var stu = Parse.Object.extend('SelectionTrackUnknown');
+  var stuq = new Parse.Query(stu);
+  stuq.limit(1000);
+  stuq.find().then(function(res) {
+    selectionTracksUnknown = res;
     start();
   });
 
