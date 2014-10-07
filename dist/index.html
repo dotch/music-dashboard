@@ -18,6 +18,7 @@
         <tr>
           <th>Date</th>
           <th>Count</th>
+          <th>Filtered Count</th>
         </tr>
         <%
           _.each(days, function(day) {
@@ -25,8 +26,14 @@
           <tr>
             <td><%= day.date %></td>
             <td><%= day.count %></td>
+            <td><%= day.filteredCount %></td>
           </tr>
         <% }); %>
+        <tr>
+          <td>All</td>
+          <td><%= count %></td>
+          <td><%= countOut %></td>
+        </tr>
       </table>
     </script>
     <script type="template" id="recommendations-acceptance-template">
