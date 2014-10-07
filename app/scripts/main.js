@@ -88,7 +88,6 @@
     this.res = _.filter(this.resUnfiltered, screen);
     this.filtered = _.reject(this.resUnfiltered, screen);
 
-    console.log(this.res.length, this.filtered.length)
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
 
     this.initAudio = function() {
@@ -130,25 +129,43 @@
       var resUnfilteredDaily = _.groupBy(this.resUnfiltered, function(r) {
         return iso(new Date(r.end_time));
       });
+      var resFilteredDaily = _.groupBy(this.res, function(r) {
+        return iso(new Date(r.end_time));
+      });
       var keys = _.keys(resUnfilteredDaily).sort();
       var data = [];
       var counts = [];
+      var filteredCounts = [];
       keys.forEach(function(k) {
-        counts.push(resUnfilteredDaily[k].length);
-        data.push({date: k, count: resUnfilteredDaily[k].length});
+        var count = resUnfilteredDaily[k].length;
+        var filteredCount = resFilteredDaily[k] ? resFilteredDaily[k].length : 0;
+        counts.push(count);
+        filteredCounts.push(filteredCount);
+        data.push({
+          date: k,
+          count: count,
+          filteredCount: filteredCount
+        });
       });
       var template = $('#participants-count-template').html();
-      var t = _.template(template,{'days': data});
+      var templateData = {
+        'days': data,
+        'count': this.res.length,
+        'countOut': this.resUnfiltered.length - this.res.length
+      };
+      var t = _.template(template, templateData);
       $('#participants-count').after(t);
       // chart
       keys.unshift('x');
       counts.unshift('participants');
+      filteredCounts.unshift('good participants');
       c3.generate({
         data: {
           x: 'x',
           columns: [
             keys,
-            counts
+            counts,
+            filteredCounts
           ]
         },
         axis: {
@@ -156,6 +173,12 @@
             type: 'timeseries',
             tick: {
               format: '%Y-%m-%d'
+            }
+          },
+          y: {
+            padding: {
+              top: 5,
+              bottom: 0
             }
           }
         }
