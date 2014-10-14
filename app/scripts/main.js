@@ -377,7 +377,7 @@
         var avg = average(ratings).toFixed(2);
         var dev = stdDev(ratings).toFixed(2);
         var song = this.ratingTracks[i];
-        var songString = this.ratingTracks[i].artist + ' - ' + this.ratingTracks[i].title;
+        var songString = song.artist + ' - ' + song.title;
         $('#ratings-average-table').append('<tr><td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td><td>' + songString + '</td><td>' + avg + '</td><td>' + dev + '</td></tr>');
       }
     };
@@ -419,7 +419,7 @@
 
       for (var i = tracksAscending.length-1; i > tracksAscending.length-11; i--) {
         var song = this.songForId(tracksAscending[i].id);
-        var songString = song.artist + ' - ' + song.title;
+        var songString = song.artist + ' - ' + song.title + ' (' + song.deezer_id + ')';
         table += [
           '<tr>',
             '<td class="text-center"><button type="button" class="play-button btn btn-sm btn-default" data-url="'+song.preview+'"><i class="glyphicon glyphicon-play"></i></button></td>',
