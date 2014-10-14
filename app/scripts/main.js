@@ -54,7 +54,7 @@
     if (!r.recommendation_type) {
       reasons.push('incomplete');
     } else {
-      if (r.survey_control_should_be_1 !== '1') {
+      if (r.survey_control_should_be_1 && r.survey_control_should_be_1 !== '1') {
         reasons.push('_control_question_1');
       }
       if (r.survey_check_1 && r.survey_check_1 !== '3') {
@@ -67,8 +67,8 @@
           r.played_rating_tracks.length === 0 ) {
         reasons.push('_no_songs_played');
       }
-      if (r.music_time_minutes < 4 ||
-          r.time_minutes < 7 ) {
+      if ( (r.music_time_minutes && r.music_time_minutes < 4) ||
+           (r.time_minutes && r.time_minutes < 7 ) ) {
         reasons.push('_music_time_lt_4_total_lt_7');
       }
     }
@@ -84,7 +84,7 @@
     this.ratingTracks = _.pluck(ratingTracks, 'attributes');
     this.selectionTracks = _.pluck(selectionTracks, 'attributes');
     this.selectionTracksUnknown = _.pluck(selectionTracksUnknown, 'attributes');
-    this.resUnfiltered = _.pluck(result, 'attributes');
+    this.resUnfiltered = result;
     this.res = _.filter(this.resUnfiltered, screen);
     this.filtered = _.reject(this.resUnfiltered, screen);
     this.recTypes = _.groupBy(this.res, 'recommendation_type');
@@ -205,10 +205,7 @@
           }
         }
       });
-      // console.log(reasonsCount);
       var reasons = _.keys(reasonsCount);
-      // console.log(reasons);
-      //var gi = _.countBy(items, 'reason');
       reasons.forEach(function(reason){
         $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + reasonsCount[reason] + '</td></tr>');
       });
@@ -249,19 +246,22 @@
           }
         }
       }
+      function colorHelper(i,j) {
+        return i < j ? 'bg-warning' : 'bg-success';
+      }
       var trs = showMax ? [
         '<tr class="text-center">',
           '<td rowspan="3" class="text-left">'+ name +'</td>',
-          '<td>'+ageRanges.maennlich['15-24']+' <small class="text-muted">(9)</small></td>',
-          '<td>'+ageRanges.maennlich['25-34']+' <small class="text-muted">(9)</small></td>',
-          '<td>'+ageRanges.maennlich['35-44']+' <small class="text-muted">(11)</small></td>',
-          '<td>'+ageRanges.maennlich['45-54']+' <small class="text-muted">(12)</small></td>',
-          '<td>'+ageRanges.maennlich['55-59']+' <small class="text-muted">(5)</small></td>',
-          '<td>'+ageRanges.weiblich['15-24']+' <small class="text-muted">(8)</small></td>',
-          '<td>'+ageRanges.weiblich['25-34']+' <small class="text-muted">(9)</small></td>',
-          '<td>'+ageRanges.weiblich['35-44']+' <small class="text-muted">(11)</small></td>',
-          '<td>'+ageRanges.weiblich['45-54']+' <small class="text-muted">(12)</small></td>',
-          '<td>'+ageRanges.weiblich['55-59']+' <small class="text-muted">(5)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['15-24'],9) +'">'+ageRanges.maennlich['15-24']+' <small class="text-muted">(9)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['25-34'],9) +'">'+ageRanges.maennlich['25-34']+' <small class="text-muted">(9)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['35-44'],11) +'">'+ageRanges.maennlich['35-44']+' <small class="text-muted">(11)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['45-54'],12) +'">'+ageRanges.maennlich['45-54']+' <small class="text-muted">(12)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['55-59'],5) +'">'+ageRanges.maennlich['55-59']+' <small class="text-muted">(5)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['15-24'],8) +'">'+ageRanges.weiblich['15-24']+' <small class="text-muted">(8)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['25-34'],9) +'">'+ageRanges.weiblich['25-34']+' <small class="text-muted">(9)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['35-44'],11) +'">'+ageRanges.weiblich['35-44']+' <small class="text-muted">(11)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['45-54'],12) +'">'+ageRanges.weiblich['45-54']+' <small class="text-muted">(12)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.maennlich['55-59'],5) +'">'+ageRanges.weiblich['55-59']+' <small class="text-muted">(5)</small></td>',
         '</tr>'
       ].join('') : [
         '<tr class="text-center">',
@@ -439,7 +439,6 @@
         return sum + num;
       });
       var cummulativeSales = _.reduce(_.pluck(tracksAscending, 'count'), function (acc, n) {
-        // console.log(acc, n);
         var val = ((acc.length > 0 ? acc[acc.length-1] : 0) + n);
         acc.push(
           val
@@ -522,14 +521,16 @@
 
   Parse.initialize('70ARDceBYgrNoRL6yJDgFubIPUZzpwKRbVVESwZC', 'qNd9A8mBLkG4hrQ2M4URnP0MyQ7Bs72AbvTXhInb');
 
-  var result;
+  var results = [];
   var ratingTracks;
   var selectionTracks;
   var selectionTracksUnknown;
+  var ready = false;
+  var skip = 0;
 
   var start = function() {
-    if (result && selectionTracks && selectionTracksUnknown && ratingTracks) {
-      var dashboard = new Dashboard(result, ratingTracks, selectionTracks, selectionTracksUnknown);
+    if (ready && results && selectionTracks && selectionTracksUnknown && ratingTracks) {
+      var dashboard = new Dashboard(results, ratingTracks, selectionTracks, selectionTracksUnknown);
       dashboard.initialize();
       $('#loader').addClass('hidden');
       $('#container').removeClass('invisible');
@@ -539,13 +540,23 @@
     }
   };
 
-  var r = Parse.Object.extend('Result');
-  var rq = new Parse.Query(r);
-  rq.limit(1000);
-  rq.find().then(function(res) {
-    result = res;
-    start();
-  });
+  function getResults(skip) {
+    var r = Parse.Object.extend('Result');
+    var rq = new Parse.Query(r);
+    rq.limit(1000);
+    rq.skip(skip);
+    rq.find().then(function(r) {
+      var res = _.pluck(r, 'attributes');
+      if (res.length) {
+        results = results.concat(res);
+        getResults(skip+1000);
+      } else {
+        ready = true;
+        start();
+      };
+    });
+  }
+  getResults(0);
 
   var rt = Parse.Object.extend('RatingTrack');
   var rtq = new Parse.Query(rt);
