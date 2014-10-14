@@ -150,8 +150,8 @@
       var template = $('#participants-count-template').html();
       var templateData = {
         'days': data,
-        'count': this.res.length,
-        'countOut': this.resUnfiltered.length - this.res.length
+        'count': this.resUnfiltered.length,
+        'countOut': this.res.length
       };
       var t = _.template(template, templateData);
       $('#participants-count').after(t);
@@ -205,9 +205,9 @@
           }
         }
       });
-      console.log(reasonsCount);
+      // console.log(reasonsCount);
       var reasons = _.keys(reasonsCount);
-      console.log(reasons);
+      // console.log(reasons);
       //var gi = _.countBy(items, 'reason');
       reasons.forEach(function(reason){
         $('#participants-out-table').append('<tr><td>'+reason+'</td><td>' + reasonsCount[reason] + '</td></tr>');
@@ -472,6 +472,22 @@
       }
     };
 
+    this.recDiversity = function() {
+      for (var type in this.recTypes) {
+        var counts = {};
+        var tracks = _.flatten(_.pluck(this.recTypes[type],'recommendation_tracks'));
+        for (var i = 0; i < tracks.length; i++) {
+          if (counts[tracks[i]]) {
+            counts[tracks[i]]++;
+          } else {
+            counts[tracks[i]] = 1;
+          }
+        }
+        console.log(type, _.keys(counts).length);
+        console.table(counts);
+      }
+    };
+
     this.acceptance = function() {
       var data = [];
       for (var type in this.recTypes) {
@@ -499,6 +515,7 @@
       this.ratings();
       this.selection();
       this.acceptance();
+      this.recDiversity();
       this.initAudio();
     };
   };
