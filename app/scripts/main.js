@@ -257,11 +257,11 @@
           '<td class="'+ colorHelper(ageRanges.maennlich['35-44'],11) +'">'+ageRanges.maennlich['35-44']+' <small class="text-muted">(11)</small></td>',
           '<td class="'+ colorHelper(ageRanges.maennlich['45-54'],12) +'">'+ageRanges.maennlich['45-54']+' <small class="text-muted">(12)</small></td>',
           '<td class="'+ colorHelper(ageRanges.maennlich['55-59'],5) +'">'+ageRanges.maennlich['55-59']+' <small class="text-muted">(5)</small></td>',
-          '<td class="'+ colorHelper(ageRanges.maennlich['15-24'],8) +'">'+ageRanges.weiblich['15-24']+' <small class="text-muted">(8)</small></td>',
-          '<td class="'+ colorHelper(ageRanges.maennlich['25-34'],9) +'">'+ageRanges.weiblich['25-34']+' <small class="text-muted">(9)</small></td>',
-          '<td class="'+ colorHelper(ageRanges.maennlich['35-44'],11) +'">'+ageRanges.weiblich['35-44']+' <small class="text-muted">(11)</small></td>',
-          '<td class="'+ colorHelper(ageRanges.maennlich['45-54'],12) +'">'+ageRanges.weiblich['45-54']+' <small class="text-muted">(12)</small></td>',
-          '<td class="'+ colorHelper(ageRanges.maennlich['55-59'],5) +'">'+ageRanges.weiblich['55-59']+' <small class="text-muted">(5)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.weiblich['15-24'],8) +'">'+ageRanges.weiblich['15-24']+' <small class="text-muted">(8)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.weiblich['25-34'],9) +'">'+ageRanges.weiblich['25-34']+' <small class="text-muted">(9)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.weiblich['35-44'],11) +'">'+ageRanges.weiblich['35-44']+' <small class="text-muted">(11)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.weiblich['45-54'],12) +'">'+ageRanges.weiblich['45-54']+' <small class="text-muted">(12)</small></td>',
+          '<td class="'+ colorHelper(ageRanges.weiblich['55-59'],5) +'">'+ageRanges.weiblich['55-59']+' <small class="text-muted">(5)</small></td>',
         '</tr>'
       ].join('') : [
         '<tr class="text-center">',
