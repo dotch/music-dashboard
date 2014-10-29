@@ -431,44 +431,79 @@
       table += '</table>';
       $('#selection-top-10').after(table);
 
-      // LORENZ CURVE
-      var lorenzId = 'lorenz-' + name;
-      $('#selection-lorenz').after('<h4>'+ name +'</h4><div id="'+ lorenzId +'"></div>');
+      return {
+        type: name,
+        tracks: tracksAscending
+      };
+    };
 
-      var totalSalesCount = _.reduce(_.pluck(tracksAscending, 'count'), function(sum, num) {
-        return sum + num;
-      });
-      var cummulativeSales = _.reduce(_.pluck(tracksAscending, 'count'), function (acc, n) {
-        var val = ((acc.length > 0 ? acc[acc.length-1] : 0) + n);
-        acc.push(
-          val
-        );
-        return acc;
-      }, []);
+    this.lorenzCurve = function(ascTracks) {
+        // LORENZ CURVE
+        $('#selection-lorenz').after('<div id="lorenz-curve"></div>');
 
-      var portions = _.map(cummulativeSales, function(i) {
-        return (i / totalSalesCount);
-      });
-      portions.unshift('cummulativeSales');
-      var lorenzIdSelector = '#' + lorenzId;
-      c3.generate({
-        bindto: lorenzIdSelector,
-        data: {
-          columns: [
-            portions,
-          ]
-        },
-        point: {
-          show: false
+        var portions = [];
+        for (var i = 0; i < ascTracks.length; i++) {
+          var tracksAscending = ascTracks[i].tracks;
+          var totalSalesCount = _.reduce(_.pluck(tracksAscending, 'count'), function(sum, num) {
+            return sum + num;
+          });
+          var cummulativeSales = _.reduce(_.pluck(tracksAscending, 'count'), function (acc, n) {
+            var val = ((acc.length > 0 ? acc[acc.length-1] : 0) + n);
+            acc.push(
+              val
+            );
+            return acc;
+          }, []);
+          var portion = _.map(cummulativeSales, function(i) {
+            return (i / totalSalesCount);
+          });
+          if (ascTracks[i].type !== 'random' && ascTracks[i].type !== 'none_quota_full') {
+            portion.unshift(ascTracks[i].type);
+            portions.push(portion);
+          }
         }
-      });
 
+        c3.generate({
+          bindto: '#lorenz-curve',
+          data: {
+            columns: portions
+          },
+          point: {
+            show: false
+          },
+          axis: {
+            x: {
+              label: '% of songs',
+              padding: {
+                left: -280
+              },
+              tick: {
+                format: function (x) { return (x*100/499).toFixed(1) + '%'; }
+              }
+            },
+            y: {
+              label: '% of sales',
+              padding: {
+                top: 0,
+                bottom: 0
+              },
+              tick: {
+                format: function (x) { return (x*100).toFixed(1) + '%'; }
+              }
+            }
+          },
+          size: {
+            height: 768
+          }
+        });
     };
 
     this.selection = function() {
+      var ascTracks = [];
       for (var type in this.recTypes) {
-        this._selection(this.recTypes[type], type);
+        ascTracks.push(this._selection(this.recTypes[type], type));
       }
+      this.lorenzCurve(ascTracks);
     };
 
     this.recDiversity = function() {
@@ -483,7 +518,7 @@
           }
         }
         console.log(type, _.keys(counts).length);
-        console.table(counts);
+        // console.table(counts);
       }
     };
 
