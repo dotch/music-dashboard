@@ -437,13 +437,26 @@
       };
     };
 
+    this.gini = function(sortedTracks) {
+      var height = 0;
+      var area = 0;
+      for (var i = 0; i < sortedTracks.length; i++) {
+        height += sortedTracks[i].count;
+        area += height - sortedTracks[i].count / 2;
+      }
+      var fairArea = height * sortedTracks.length / 2;
+      return (fairArea - area) / fairArea;
+    };
+
     this.lorenzCurve = function(ascTracks) {
         // LORENZ CURVE
         $('#selection-lorenz').after('<div id="lorenz-curve"></div>');
 
         var portions = [];
+        var ginis = [];
         for (var i = 0; i < ascTracks.length; i++) {
           var tracksAscending = ascTracks[i].tracks;
+
           var totalSalesCount = _.reduce(_.pluck(tracksAscending, 'count'), function(sum, num) {
             return sum + num;
           });
@@ -460,6 +473,11 @@
           if (ascTracks[i].type !== 'random' && ascTracks[i].type !== 'none_quota_full') {
             portion.unshift(ascTracks[i].type);
             portions.push(portion);
+            // gini
+            ginis.push({
+              type: ascTracks[i].type,
+              gini: this.gini(tracksAscending)
+            });
           }
         }
 
@@ -496,6 +514,25 @@
             height: 768
           }
         });
+
+        var table = [
+          '<table  class="table table-bordered table-middle">',
+            '<tr>',
+              '<th>Group</th><th>Gini Coefficient</th>',
+            '</tr>'
+        ].join('');
+        for (var j = 0; j < ginis.length; j++) {
+          table += [
+            '<tr>',
+              '<td>' + ginis[j].type + '</td><td>' + ginis[j].gini + '</td>',
+            '</tr>'
+          ].join('');
+        }
+        table += '</table>';
+        $('#selection-gini').after(table);
+        console.log(table,$('#selection-gini'));
+
+
     };
 
     this.selection = function() {
