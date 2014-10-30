@@ -567,8 +567,8 @@
           type: type,
           min: _.min(counts),
           max: _.max(counts),
-          md: median(counts),
-          mn: average(counts)
+          mn: average(counts),
+          rate: (100*average(counts)/5).toFixed(2) + '%'
         });
       }
       var template = $('#recommendations-acceptance-template').html();

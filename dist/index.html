@@ -46,8 +46,8 @@
           <th></th>
           <th>min</th>
           <th>max</th>
-          <th>md</th>
           <th>mn</th>
+          <th>rate</th>
         </tr>
         <%
           _.each(types, function(type) {
@@ -56,8 +56,8 @@
             <td><%= type.type %></td>
             <td><%= type.min %></td>
             <td><%= type.max %></td>
-            <td><%= type.md %></td>
             <td><%= type.mn %></td>
+            <td><%= type.rate %></td>
           </tr>
         <% }); %>
       </table>
