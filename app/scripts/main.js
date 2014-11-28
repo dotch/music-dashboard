@@ -470,7 +470,7 @@
           var portion = _.map(cummulativeSales, function(i) {
             return (i / totalSalesCount);
           });
-          if (ascTracks[i].type !== 'random' && ascTracks[i].type !== 'none_quota_full') {
+          if (ascTracks[i].type !== 'random' && ascTracks[i].type.indexOf('quota_full') === -1) {
             portion.unshift(ascTracks[i].type);
             portions.push(portion);
             // gini
