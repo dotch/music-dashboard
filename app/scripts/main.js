@@ -493,7 +493,7 @@
             x: {
               label: '% of songs',
               padding: {
-                left: -280
+                left: -260
               },
               tick: {
                 format: function (x) { return (x*100/499).toFixed(1) + '%'; }
